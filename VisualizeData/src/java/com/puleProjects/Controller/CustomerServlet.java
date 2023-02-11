@@ -50,10 +50,10 @@ public class CustomerServlet extends HttpServlet {
       out.println("<h1>Error: File not found in the request</h1>");
     }else{
         InputStream fileContent = filePart.getInputStream();
-        // Read the CSV data and store it in a List of objects
+ 
         Customer customer = new Customer(fName, lName, dob);
         List<FinancialData> financialData = readCSV(fileContent);
-        // Store the data in a database
+  
         DAO storeInDB = new CustomerModel();
         storeInDB.addCustomer(customer, financialData);
         response.sendRedirect("visuals.jsp");
