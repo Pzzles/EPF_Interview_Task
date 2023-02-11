@@ -1,0 +1,111 @@
+This project was written in Java.
+
+BEANS
+*I created a java bean labelled "Customer", where all the attributes and behaviour of the customer object are laid out.
+Attributes are => first Name, Last Name, Date Of Birth, Month, Income, and Expenses;
+
+* I created another java class labelled "FinancialDaat", it represents the customer's financial data.
+Attributes are => Month, Income, and Expenses.
+(I could have used better use of Abstraction here to avoid having to repeate the same instance variables...)
+
+============================================================================================================================================
+DAO
+(This layer is the system's access to interacting with the database.)
+* I created a DAO Interface where the abstract methods "addCustomer(2 arguments)" and "viewCustomerData()" 
+are defined but not given behaviour(implementation).
+	- The  addCustomer(Customer customer, List<FinancialData> financialData) method takes 2 arguments,
+	of type "Customer" and a List of "FinancialData", and it returns a boolean to determine whether or not
+	the addition of a Customer to the databases was succesful.
+	- The viewCustomer() method takes no arguments and it returns a List of Customer from the database.
+
+DAOImplementation
+* I created an abstract class, this is where the DAO interface is implemented.
+* First, the class inherits from the DAO interface. DAOImplementation implemplements DAO means that all the
+the abstract methods from the interface MUST be implemented(given behaviour). 
+* At this point, the methods are given stub implementations, the actual behaviour will follow. This will make scaling
+easier and more modular.
+
+CustomerModel
+* I created a class that inherits from the DAOImplementation abstract class, CustomerModel extends DAOImplementation means the methods can
+ be inherited but you can chose which to override.
+* The Connection, PreparedStatement, and ResultSet, ArrayList variables are declared first. 
+* In the addCustomer(Customer customer, List<FinancialData> financialData) method:
+	-The connection to the database is established, using the ConnectionDB Singleton class.
+	-The preparedStatement object for inserting data into the database is created.
+	-The appropriate SQL statements are coded.
+	-The parameter values of the preparedStatement are set.
+	-The SQLExceptions are checked, and the boolean result is returned true, barring any exceptions, or incorrect SQL queries, 
+* In the viewCUstomer() method:
+	-The connection to the database is established, using the ConnectionDB Singlton class.
+	-The method then creates a PreparedStatement object that contains the approriate SQL query, then executes the query using
+ 	the execteQuery() method of the PreparedStatement object, which returns a ResultSet object.
+	-The method then loops through each row of the result set and then create a Customer object. It then sets all the properties based on
+	the corresponding columns in the resilt set.
+	-The method then adds Customer object to the ArrayList, and barring any exceptions, or incorrect SQL queries, it returns the ArrayList.
+
+============================================================================================================================================
+
+Controller
+(This is where all the business logic is implemented)
+
+CustomerServelt 
+* I Created a CustomerServelt  for handling HTTP POST requests related to customer data. 
+* I Declared and initialized the variables fName, lName, dob, and filePart and called the getParameter and getPart methods of 
+  the HttpServletRequest object to retrieve form data from the HTTP POST request.
+* In the doPost method.
+	- The method retrieves the InputStream object from the filePart object and passes it to the readCSV method to read the data from a CSV file.
+	- The method creates a Customer object and passes the fName, lName, and dob values to its constructor.
+	- The method creates a List of FinancialData objects by calling the readCSV method and passing the InputStream object to it.
+	- The method creates a DAO object and stores the Customer and FinancialData objects in a database by calling the addCustomer method of the 
+	DAO object.
+	-The method then sends a redirect response to the HTTP response with the URL "visuals.jsp".
+* In the readCSV() method
+	- The method  returns a list of FinancialData objects and takes an InputStream object as input.
+	- The method creates a BufferedReader object which reads the input stream of the CSV data. The try with resources block declares the BufferedReader object
+	- The method then loops through the csv file, skipping the first "header" line.
+	- It splits each  current line using comma as the delimiter and stores each value in an array and creates a new FinancialData object and sets its properties
+	 using the corresponding values in the CSV file. 
+	- The data object is then added to the financialData Arraylist, barring any exceptions, the method returns financialData.
+
+VisualizeServlet
+* I Created a VisualizeServletfor handling HTTP POST requests related to visualizing data. 
+* In the doPost method
+	- The class TemporalGraph is called. This class calls the "draw()" static method which will execute the block of code I will define below...
+
+============================================================================================================================================
+
+Utilities
+(this is where all my systems utility classes are implemented)
+
+ConnectionDB 
+* I created a ConnectionDB singleton class as a utility class that is used to create a singleton instance of a database connection.
+ It contains a private static instance of Connection, and a public static method getInstance() which returns  that returns a 
+ connection object for accessing a MySQL database. 
+* The getInstance() method is a singleton, it ensures that only one connection object is created and used throughout the application.
+ 
+
+TemporalGraph(Heavily borrows from a StackOverFlow user named  "PrinceOfSaiyans")
+* I created a TemporalGraph class as a utility class that inherits from the JFrame class. 
+* The class has two constructors, one with no parameters and one that takes a title. The second constructor calls the constructor of 
+the JFrame class and passes the title to it.
+* The class loads data from the customer table of the database by creating a DefaultCategoryDataset object and querying the 
+Month, Income, and Expenses columns. It then adds the data to the dataset.
+* The class then creates a line chart using the ChartFactory class and passes the dataset to it. It also sets the chart's title,
+ x-axis label, y-axis label, and other properties.
+* The class creates a ChartPanel object to display the chart and sets its preferred size to 1020x720.
+* The TemporalGraph class has a static method named draw() that creates an instance of the class with a title "Temporal Graph", 
+calls the pack() method to resize the frame based on the preferred sizes of its components, and calls the setVisible(true) method to make the frame visible.
+
+============================================================================================================================================
+
+HTML
+
+index page
+* The index.jsp page defines a form with the fields name, suname, date of birth and an element that uploads .csv files specififcally.
+
+
+visuals page
+* The visuals.jsp file displays a table of customer data with columns for customer name, month, income, and expenses. The customer 
+data is read from a DAO using the viewCustomer() method. 
+The button column contains a link to a servlet that visualizes the customer data on a temporal graph.
+ 
