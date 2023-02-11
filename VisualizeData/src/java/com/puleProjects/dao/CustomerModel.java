@@ -33,16 +33,7 @@ public class CustomerModel extends DAOImplementation {
     @Override
     public boolean addCustomer(Customer customer, List<FinancialData> financialData) {
         boolean result = false;
-//        if (con == null) {
-//            try {
-//                Class.forName("org.gjt.mm.mysql.Driver");
-//                con = DriverManager.getConnection("jdbc:mysql://localhost:3306/EPFinterview?useSSL=false", "Pule", "P.zzle$0");
-//            } catch (SQLException se) {
-//                System.out.println("driver not found" + se.getMessage());
-//            } catch (ClassNotFoundException ex) {
-//                Logger.getLogger(ConnectionDB.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        } 
+
         try {
             con = ConnectionDB.getInstance();
             if (con != null) {
